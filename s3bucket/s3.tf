@@ -1,7 +1,3 @@
-provider "aws" {
-  region = "us-east-2"
-}
-
 resource "aws_s3_bucket" "backend" {
   count = var.create_vpc ? 1 : 0 #Count a meta argument that changes/alters the state/behavior of a resource
 #We are using with "?" a tenary operator to check for the condition of our defined variable
@@ -14,7 +10,6 @@ resource "aws_s3_bucket" "backend" {
     Environment = "HR"
   }
 }
-
 resource "aws_s3_bucket_ownership_controls" "owner_controls" {
   bucket = aws_s3_bucket.backend[0].id #b/c of the condition we added we had to introduce index to anywhere we see bucket referenced
   rule {
@@ -27,11 +22,6 @@ resource "aws_s3_bucket_acl" "myacl" {
 
   bucket = aws_s3_bucket.backend[0].id
   acl    = "private"
-}
-
-resource "aws_kms_key" "backendkey" {
-  description             = "KMS key for backend bucket"
-  deletion_window_in_days = 10
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "backend" {
@@ -49,23 +39,4 @@ resource "aws_s3_bucket_versioning" "backend_version" {
   versioning_configuration {
     status = "Enabled"
   }
-}
-#Changing the bucket name to random names
-
-resource "random_pet" "pet_name" { #randompet has prefix can any name length can be any number
-  prefix = "bootcamp30"
-  length = 2
-
-}
-
-/*resource "random_integer" "num" {
-  max = 100
-  min = 2
-  
-}*/
-#Lets use conditions to determine weather a bucket should be created or not
-
-variable "create_vpc" {
-  type = bool
-  default = true
 }
